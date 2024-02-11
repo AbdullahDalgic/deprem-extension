@@ -1,0 +1,10 @@
+{
+  "all": {
+    "description": "All",
+    "message": "Tümü"
+  },
+  "do_not_notify": {
+    "description": "Do not notify",
+    "message": "Bildirim gönderme"
+  }
+}

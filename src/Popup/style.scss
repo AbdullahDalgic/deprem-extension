@@ -1,0 +1,49 @@
+html,body{
+    margin: 0;
+    padding: 0;
+
+    #root{
+        width: 400px;
+        margin: 0 auto;
+
+        .container{
+            min-height: 400px;
+            margin-bottom: 50px;
+        }
+
+        .list{
+            margin: 0;
+            padding: 0;
+
+            .list-item{
+                border-bottom: 1px solid rgba(0,0,0,0.3);
+                background-color: #fff;
+
+                &.unseen{
+                    background:  linear-gradient(90deg,
+                    #afe8a1 0%,
+                    #e2ffdb 10%,
+                    #afe8a1 20%,
+                    #afe8a1 100%);
+                    animation: unseen 2s linear infinite;
+
+                    &:nth-of-type(odd){
+                        background:  linear-gradient(90deg,
+                        #d0ffc4 0%,
+                        #eaffe4 10%,
+                        #d0ffc4 20%,
+                        #d0ffc4 100%);
+                        animation: unseen 2s linear infinite;
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+@keyframes unseen {
+    to{
+        background-position: 80vw;
+    }
+}

@@ -1,0 +1,10 @@
+{
+  "all": {
+    "description": "All",
+    "message": "All"
+  },
+  "do_not_notify": {
+    "description": "Do not notify",
+    "message": "Do not notify"
+  }
+}

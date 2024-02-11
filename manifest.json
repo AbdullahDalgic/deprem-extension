@@ -1,0 +1,21 @@
+{
+  "name": "deprem-extension",
+  "description": "Deprem Extension",
+  "version": "1.0",
+  "default_locale": "tr",
+  "manifest_version": 3,
+  "icons": {
+    "16": "assets/icon.png",
+    "48": "assets/icon.png",
+    "128": "assets/icon.png"
+  },
+  "action": {
+    "default_popup": "Popup.html",
+    "default_icon": "assets/icon.png",
+    "default_title": "Deprem Extension"
+  },
+  "background": {
+    "service_worker": "js/Background.bundle.js"
+  },
+  "permissions": ["storage", "notifications"]
+}
