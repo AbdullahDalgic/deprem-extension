@@ -1,54 +1,70 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { Dispatch, createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import { i18n } from "@src/tools/helpers";
 
-const dateOptions = ["all", "1", "7"];
-const sizeOptions = ["all", "1+", "2.5+", "4+"];
-const notifications = ["all", "2.5+", "4+", "do_not_notify"];
+export interface ISettingOptions {
+  name: string;
+  value: string | number | boolean;
+  selected?: boolean;
+}
+
+export interface ISetting {
+  title: string;
+  selected: ISettingOptions;
+  options: ISettingOptions[];
+  icon?: any;
+  key?: keyof ISettings | false;
+}
 
 export interface ISettings {
-  date: {
-    options: typeof dateOptions;
-    value: (typeof dateOptions)[number];
-    name: string;
-  };
-  size: {
-    options: typeof sizeOptions;
-    value: (typeof sizeOptions)[number];
-    name: string;
-  };
-  notifications: {
-    options: typeof notifications;
-    value: (typeof notifications)[number];
-    name: string;
-  };
+  date: ISetting;
+  magnitude: ISetting;
+  notification: ISetting;
 }
 
 const initialState: ISettings = {
   date: {
-    options: dateOptions,
-    value: "all",
-    name: "Zaman",
+    title: i18n("date"),
+    selected: { name: i18n("all"), value: "all" },
+    options: [
+      { name: i18n("all"), value: "all" },
+      { name: i18n("day", ["1"]), value: 1 },
+      { name: i18n("week", ["1"]), value: 7 },
+    ],
   },
-  size: {
-    options: sizeOptions,
-    value: "all",
-    name: "Büyüklük",
+  magnitude: {
+    title: i18n("magnitude"),
+    selected: { name: "2.5+", value: 2.5 },
+    options: [
+      { name: i18n("all"), value: "all" },
+      { name: "1+", value: 1 },
+      { name: "2.5+", value: 2.5 },
+      { name: "4+", value: 4 },
+    ],
   },
-  notifications: {
-    options: notifications,
-    value: "all",
-    name: "Bildirimler",
+  notification: {
+    title: i18n("notification"),
+    selected: { name: i18n("all"), value: "all" },
+    options: [
+      { name: i18n("all"), value: "all" },
+      { name: "2.5+", value: 2.5 },
+      { name: "4+", value: 4 },
+      { name: i18n("do_not_notification"), value: false },
+    ],
   },
 };
-
 const slice = createSlice({
   name: "settings",
   initialState: initialState,
   reducers: {
-    setSettings: (state, action: PayloadAction<ISettings>) => {
+    settingsUpdate: (state, action: PayloadAction<ISettings>) => {
       return action.payload;
     },
   },
 });
 
-export const { setSettings } = slice.actions;
+export const { settingsUpdate } = slice.actions;
+
 export default slice.reducer;
+
+export const getEarthquakes = () => async (dispatch: Dispatch) => {};

@@ -1,85 +1,113 @@
+import { useCallback, useMemo, useState } from "react";
+
 import {
-  List,
   Box,
+  CssBaseline,
+  List,
   ListItem,
   ListItemAvatar,
   Avatar,
   ListItemText,
   Modal,
-  Typography,
   FormControl,
-  RadioGroup,
-  FormControlLabel,
   Radio,
+  FormControlLabel,
+  RadioGroup,
 } from "@mui/material";
-import { useTypedDispatch, useTypedSelector } from "@src/tools/redux";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import { blue } from "@mui/material/colors";
 import SettingsIcon from "@mui/icons-material/Settings";
-import TimelineIcon from "@mui/icons-material/Timeline";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { blue, grey } from "@mui/material/colors";
-import { useState } from "react";
-import { ISettings, setSettings } from "@src/tools/redux/slices/settings";
-import { i18n } from "@src/tools/helpers";
+import TimelineIcon from "@mui/icons-material/Timeline";
+import { grey } from "@mui/material/colors";
 
-const OptionList = [
-  {
-    name: "date",
-    icon: <AccessTimeIcon />,
-  },
-  {
-    name: "size",
-    icon: <TimelineIcon />,
-  },
-  {
-    name: "notifications",
-    icon: <NotificationsIcon />,
-  },
-];
+import {
+  ISetting,
+  ISettingOptions,
+  ISettings,
+  settingsUpdate,
+} from "@src/tools/redux/slices/settings";
+import { i18n } from "@src/tools/helpers";
+import { useTypedDispatch, useTypedSelector } from "@src/tools/redux";
+
+const IconList = {
+  date: AccessTimeIcon,
+  magnitude: TimelineIcon,
+  notification: NotificationsIcon,
+};
 
 export default function () {
   const dispatch = useTypedDispatch();
   const settings = useTypedSelector((state) => state.settings);
-  const [open, setOpen] = useState<keyof ISettings | false>(false);
 
-  const handleOpen = (value: keyof ISettings) => setOpen(value);
+  const [open, setOpen] = useState<keyof ISettings | false>(false);
+  const handleOpen = (value: keyof ISettings | false) => setOpen(value);
   const handleClose = () => setOpen(false);
 
+  const handleUpdate = useCallback(
+    (key: keyof ISettings, data: ISettingOptions) => {
+      dispatch(
+        settingsUpdate({
+          ...settings,
+          [key]: {
+            ...settings[key],
+            selected: data,
+          },
+        })
+      );
+    },
+    [dispatch, settings]
+  );
+
+  const Settings = useMemo(() => {
+    return Object.keys(settings).reduce((acc, key) => {
+      return {
+        ...acc,
+        [key]: {
+          ...settings[key],
+          icon: IconList[key],
+          key: key,
+        },
+      };
+    }, {});
+  }, [settings]);
+
+  if (!settings) {
+    return null;
+  }
+
   return (
-    <Box>
+    <Box className="container options">
+      <CssBaseline />
       <List className="list">
-        {OptionList.map((opt, index) => (
-          <ListItem key={index} className="list-item">
+        {Object.values(Settings).map((Setting: ISetting, index) => (
+          <ListItem key={index}>
             <ListItemAvatar>
-              <Avatar sx={{ backgroundColor: blue[300], borderRadius: "20%" }}>
-                {opt.icon}
+              <Avatar sx={{ bgcolor: blue[300], borderRadius: "20%" }}>
+                <Setting.icon />
               </Avatar>
             </ListItemAvatar>
+
             <ListItemText
-              primary={settings[opt.name].name}
-              secondary={i18n(settings[opt.name].value)}
+              primary={Setting.title}
+              secondary={Setting.selected.name || "-"}
             />
 
             <ListItemAvatar
-              sx={{ borderRadius: "20%", cursor: "pointer" }}
-              onClick={() => handleOpen(opt.name as keyof ISettings)}
+              sx={{ textAlign: "-webkit-right", cursor: "pointer" }}
+              onClick={() => handleOpen(Setting.key)}
             >
-              <Avatar sx={{ borderRadius: "20%", backgroundColor: grey[200] }}>
+              <Avatar sx={{ borderRadius: "20%", bgcolor: grey[200] }}>
                 <SettingsIcon sx={{ color: grey[900] }} />
               </Avatar>
             </ListItemAvatar>
           </ListItem>
         ))}
       </List>
-      <Modal
-        open={!!open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
+      <Modal open={!!open} onClose={handleClose}>
         <Box
           sx={{
-            position: "absolute",
+            position: "absolute" as "absolute",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
@@ -92,24 +120,14 @@ export default function () {
         >
           {open && (
             <FormControl>
-              <RadioGroup value={settings[open].value}>
-                {settings[open].options.map((option, index) => (
+              <RadioGroup value={settings[open].selected.value}>
+                {settings[open].options.map((data, index) => (
                   <FormControlLabel
                     key={index}
-                    value={option}
+                    value={data.value}
                     control={<Radio />}
-                    label={i18n(option)}
-                    onClick={() => {
-                      dispatch(
-                        setSettings({
-                          ...settings,
-                          [open]: {
-                            ...settings[open],
-                            value: option,
-                          },
-                        })
-                      );
-                    }}
+                    label={data.name || "-"}
+                    onClick={() => handleUpdate(open, data)}
                   />
                 ))}
               </RadioGroup>

@@ -1,10 +1,96 @@
 {
+  "extName": {
+    "description": "",
+    "message": "Deprem.wiki: Anlık Deprem Uyarıları"
+  },
+  "extDesc": {
+    "description": "",
+    "message": "Chrome tarayıcınıza anlık deprem uyarıları sunan güçlü bir araçtır! Artık Türkiye depremleri anlık olarak takip etmek çok kolay."
+  },
+  "earthquakes": {
+    "description": "",
+    "message": "Depremler"
+  },
+  "settings": {
+    "description": "",
+    "message": "Ayarlar"
+  },
+  "date": {
+    "description": "",
+    "message": "Zaman"
+  },
+  "size": {
+    "description": "",
+    "message": "Büyüklük"
+  },
+  "magnitude": {
+    "description": "",
+    "message": "Büyüklük"
+  },
+  "notification": {
+    "description": "",
+    "message": "Bildirim"
+  },
+  "do_not_notification": {
+    "description": "Notification value.",
+    "message": "Bildirim Alma"
+  },
   "all": {
-    "description": "All",
+    "description": "Notification value.",
     "message": "Tümü"
   },
-  "do_not_notify": {
-    "description": "Do not notify",
-    "message": "Bildirim gönderme"
+  "day": {
+    "description": "Notification value.",
+    "message": "$day$ Gün",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "1",
+        "description": ""
+      }
+    }
+  },
+  "week": {
+    "description": "Notification value.",
+    "message": "$week$ Hafta",
+    "placeholders": {
+      "week": {
+        "content": "$1",
+        "example": "1",
+        "description": ""
+      }
+    }
+  },
+  "TSI": {
+    "description": "Notification value.",
+    "message": "Türkiye Saati"
+  },
+  "list_is_empty": {
+    "description": "",
+    "message": "Deprem listesi boş."
+  },
+  "future_not_active": {
+    "description": "",
+    "message": "Bu özellik şu an aktif değil."
+  },
+  "notification_title": {
+    "description": "",
+    "message": "Yeni bir deprem meydana geldi!"
+  },
+  "notification_body": {
+    "description": "",
+    "message": "Büyüklük: $magnitude$ - Yer: $location$",
+    "placeholders": {
+      "magnitude": {
+        "content": "$1",
+        "example": "5.6",
+        "description": ""
+      },
+      "location": {
+        "content": "$2",
+        "example": "Hatay",
+        "description": ""
+      }
+    }
   }
 }
