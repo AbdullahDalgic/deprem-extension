@@ -1,82 +1,76 @@
-import { nanoid } from "@reduxjs/toolkit";
-import { SOCKET_URL } from "@src/tools/constants";
-import reduxedStore, { RootState } from "@src/tools/redux";
+import { ExtendedStore, diffDeep } from "reduxed-chrome-storage";
+import reduxStorage, { RootState } from "@src/tools/redux";
+import { APP_URL, SOCKET_URL } from "@src/tools/constants";
 import {
   IEarthquake,
+  setEarthquakeSeen,
   getEarthquakes,
   setEarthquake,
-  setEarthquakeSeen,
 } from "@src/tools/redux/slices/earthquakes";
-import { ExtendedStore, diffDeep } from "reduxed-chrome-storage";
+import { i18n } from "@src/tools/helpers";
 
 const io = require("socket.io-client");
 
 class BackgroundJS {
   protected store: ExtendedStore;
-  protected state: RootState;
   protected previous: RootState;
+  protected storage: RootState;
+  protected socket;
 
   constructor() {
-    console.log("Background created");
-
-    this.init();
-  }
-
-  protected init() {
-    this.SocketService();
+    console.log("BackgroundJS class is instantiated");
     this.Listeners();
+
+    this.SocketService();
   }
 
-  protected async Listeners() {
-    this.store = await reduxedStore();
-    this.state = this.store.getState();
-
-    this.state = this.store.getState();
+  protected Listeners = async () => {
+    this.store = await reduxStorage();
+    this.storage = this.store.getState() as RootState;
     this.store.subscribe(() => {
-      this.previous = this.state;
-      this.state = this.store.getState();
+      this.previous = this.storage;
+      this.storage = this.store.getState() as RootState;
 
-      const changed = diffDeep(this.state, this.previous);
-      if (!changed) return;
+      const changed = diffDeep(this.storage, this.previous);
+      if (changed === undefined) return;
       this.StorageListener(changed);
     });
-  }
 
-  /**
-   * @description Bu fonksiyon, storage değişikliklerini dinler.
-   *
-   * @param changed
-   */
-  protected async StorageListener(changed: { [key: string]: any }) {
-    console.log("🚀 ~ BackgroundJS ~ changed:", changed);
-    if (changed?.earthquakes?.unseen !== undefined) {
-      let unseen = changed.earthquakes.unseen.toString();
-      if (unseen === "0") unseen = "";
-      chrome.action.setBadgeText({ text: unseen });
-    }
-  }
+    chrome.notifications.onClicked.addListener((id) => {
+      console.log("Notification clicked", id);
+      chrome.tabs.create({ url: APP_URL });
+      chrome.notifications.clear(id);
+    });
 
-  /**
-   * @description Bu fonksiyon, socket bağlantısını sağlar.
-   */
-  protected SocketService() {
-    console.log("SocketService created");
+    chrome.runtime.onStartup.addListener(() => {
+      console.log("Extension started");
+      this.store.dispatch(getEarthquakes());
+      this.SocketService();
+    });
+  };
 
-    const socket = io(SOCKET_URL, {
+  public SocketService = () => {
+    if (this.socket?.connected) return;
+
+    this.socket = io(SOCKET_URL, {
       transports: ["websocket"],
     });
 
-    socket.on("connect", () => {
+    this.socket.on("connect", () => {
       console.log("Socket connected");
       this.store.dispatch(getEarthquakes());
     });
 
-    socket.on("disconnect", () => {
+    this.socket.on("disconnect", () => {
       console.log("Socket disconnected");
     });
 
-    socket.on("yeni-deprem", (data: IEarthquake) => {
-      console.log("Socket yeni-deprem", data);
+    this.socket.on("ping", (data: any) => {
+      console.log("Socket ping");
+    });
+
+    this.socket.on("yeni-deprem", (data: any) => {
+      console.log("Socket message", data);
 
       if (!this.IsItVisible(data)) {
         this.store.dispatch(setEarthquakeSeen(data));
@@ -85,44 +79,52 @@ class BackgroundJS {
         this.SendNotification(data);
       }
     });
-  }
+  };
 
-  /**
-   * @description Bu fonksiyon, kullanıcıya deprem bildirimi gönderir.
-   *
-   * @param data
-   */
-  protected SendNotification(data: IEarthquake) {
-    chrome.notifications.create(data.id || nanoid(), {
+  private StorageListener = async (changed: { [key: string]: any }) => {
+    this.storage = this.store.getState() as RootState;
+
+    console.log("🚀 ~ changed:", changed);
+    if (changed?.earthquakes?.unseen !== undefined) {
+      let unseen = changed.earthquakes.unseen ?? 0;
+      if (!unseen) unseen = "";
+      chrome.action.setBadgeText({
+        text: unseen.toString(),
+      });
+    }
+  };
+
+  private SendNotification = (data: IEarthquake) => {
+    // when clicked, open the www.deprem.wiki
+    chrome.notifications.create(data.eventId.toString(), {
       type: "basic",
       iconUrl: chrome.runtime.getURL("assets/icon.png"),
-      title: "Yeni Deprem",
-      message: `${data.location} ${data.magnitude} büyüklüğünde deprem oldu.`,
+      title: i18n("notification_title"),
+      message: i18n("notification_body", [
+        data.magnitude.toString(),
+        data.location,
+      ]),
       isClickable: true,
     });
-  }
+  };
 
-  /**
-   * @description Bu fonksiyon, kullanıcının ayarlarına göre depremin görünüp görünmeyeceğini kontrol eder.
-   *
-   * @param data
-   * @returns boolean
-   */
-  protected IsItVisible(data: IEarthquake) {
-    console.log("IsItVisible -> data", data);
-
-    let { size, notifications } = this.state.settings;
-    const NotificationValue = Number(notifications.value.replace("+", ""));
+  private IsItVisible = (data: IEarthquake) => {
+    let { magnitude, notification } = this.storage.settings;
+    const NotificationValue = Number(notification.selected.value);
+    const SizeValue = Number(magnitude.selected.value);
     const Magnitude = Number(data.magnitude);
-    const SizeValue = Number(size.value.replace("+", ""));
 
-    if (size.value === "all" && notifications.value === "all") return true;
-    if (notifications.value == "do_not_notify") return false;
+    console.log("🚀 ~", { NotificationValue, SizeValue, Magnitude });
+
+    if (!notification.selected.value) return false;
     if (!!NotificationValue && Magnitude < NotificationValue) return false;
-    if (typeof SizeValue === "number" && Magnitude < SizeValue) return false;
+
+    if (typeof SizeValue == "number") {
+      if (Magnitude < SizeValue) return false;
+    }
 
     return true;
-  }
+  };
 }
 
 new BackgroundJS();

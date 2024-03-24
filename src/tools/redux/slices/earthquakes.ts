@@ -1,59 +1,76 @@
-import { PayloadAction, createSlice, nanoid } from "@reduxjs/toolkit";
+import { Dispatch, createSlice, nanoid } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
 import { API_URL, TIME_FORMAT } from "@src/tools/constants";
 import moment from "moment";
 
 export interface IEarthquake {
-  id?: string;
-  seen: boolean;
+  eventId?: number;
+  seen?: boolean;
   depth: number;
-  magnitude: number;
+  eventDate: string;
+  timezone: string;
   lat: string;
   lng: string;
   location: string;
-  country?: string;
-  province?: string;
-  district?: string;
-  neighborhood?: string;
-  eventDate: string;
-  timezone: string;
-  eventID?: string;
+  magnitude: number;
   provider: string;
-  revize?: string | number | false;
+  revize: string | null | false;
 }
 
-export interface IEarthquakeState {
+interface IEarthquakeInitialState {
+  error?: string | null;
+  isLoading?: boolean;
   data: IEarthquake[];
   unseen: number;
+  lastFetch: Date | null;
 }
 
-const initialState: IEarthquakeState = {
+const initialState: IEarthquakeInitialState = {
+  error: null,
+  isLoading: false,
   data: [],
   unseen: 0,
+  lastFetch: null,
 };
 
 const slice = createSlice({
   name: "earthquakes",
   initialState: initialState,
   reducers: {
+    setLoading: (state, action) => {
+      state.isLoading = action.payload;
+      state.error = null;
+    },
+    setError: (state, action) => {
+      state.error = action.payload;
+    },
     setEarthquakes: {
       reducer: (state, action: PayloadAction<IEarthquake[]>) => {
-        state.data = action.payload;
+        state.unseen = 0;
+        state.lastFetch = new Date();
+        state.data = state.data
+          .concat(action.payload)
+          .filter((e: IEarthquake, index: number, self: IEarthquake[]) => {
+            return index === self.findIndex((t) => t.eventId === e.eventId);
+          });
       },
       prepare: (payload: IEarthquake[]) => {
         return {
-          payload: payload.map((item) => ({
-            ...item,
-            eventDate: moment(item.eventDate).format(TIME_FORMAT),
-            seen: true,
-            id: nanoid(),
-          })),
+          payload: payload.map((earthquake: IEarthquake) => {
+            return {
+              ...earthquake,
+              eventDate: moment(earthquake.eventDate).format(TIME_FORMAT),
+              seen: true,
+            };
+          }),
         };
       },
     },
     setEarthquake: {
       reducer: (state, action: PayloadAction<IEarthquake>) => {
-        state.unseen += 1;
+        state.unseen = state.unseen + 1;
         state.data.push(action.payload);
+        state.data = checkUnnecessary(state.data);
       },
       prepare: (payload: IEarthquake) => {
         return {
@@ -61,7 +78,6 @@ const slice = createSlice({
             ...payload,
             eventDate: moment(payload.eventDate).format(TIME_FORMAT),
             seen: false,
-            id: nanoid(),
           },
         };
       },
@@ -69,6 +85,7 @@ const slice = createSlice({
     setEarthquakeSeen: {
       reducer: (state, action: PayloadAction<IEarthquake>) => {
         state.data.push(action.payload);
+        state.data = checkUnnecessary(state.data);
       },
       prepare: (payload: IEarthquake) => {
         return {
@@ -76,25 +93,44 @@ const slice = createSlice({
             ...payload,
             eventDate: moment(payload.eventDate).format(TIME_FORMAT),
             seen: true,
-            id: nanoid(),
           },
         };
       },
     },
     resetUnseen: (state) => {
       state.unseen = 0;
+      state.data = (state.data || []).map((earthquake: IEarthquake) => {
+        earthquake.seen = true;
+        return earthquake;
+      });
     },
   },
 });
 
-export const { setEarthquakes, setEarthquake, setEarthquakeSeen, resetUnseen } =
-  slice.actions;
+export const {
+  setLoading,
+  setError,
+  setEarthquakes,
+  setEarthquake,
+  setEarthquakeSeen,
+  resetUnseen,
+} = slice.actions;
+
 export default slice.reducer;
 
-export const getEarthquakes = () => async (dispatch) => {
+export const getEarthquakes = () => async (dispatch: Dispatch) => {
+  dispatch(setLoading(true));
   try {
     const data = await fetch(`${API_URL}/earthquakes`);
     const earthquakes = await data.json();
     dispatch(setEarthquakes(earthquakes));
-  } catch (error) {}
+  } catch (error) {
+    dispatch(setError(error.message));
+  }
+  dispatch(setLoading(false));
+};
+
+const checkUnnecessary = (data: IEarthquake[]): IEarthquake[] => {
+  // If there are more than 1000, delete the first index and keep the last 1000
+  return data.length > 1000 ? data.slice(data.length - 1000) : data;
 };

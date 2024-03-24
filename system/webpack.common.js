@@ -19,20 +19,11 @@ const Files = [
 module.exports = {
   mode: process.env.NODE_ENV,
   devtool: "cheap-module-source-map",
+  plugins: [new Dotenv({ path: "./system/.env" })],
   entry: Files.reduce((acc, file) => {
     acc[file.name] = file.path;
     return acc;
   }, {}),
-  output: {
-    filename: "js/[name].bundle.js",
-    path: path.resolve("dist"),
-  },
-  resolve: {
-    extensions: [".ts", ".tsx", ".js", ".scss"],
-    alias: {
-      "@src": path.resolve("src"),
-    },
-  },
   module: {
     rules: [
       {
@@ -57,8 +48,13 @@ module.exports = {
       },
     ],
   },
+  resolve: {
+    extensions: [".tsx", ".ts", ".js", ".scss"],
+    alias: {
+      "@src": path.resolve("src"),
+    },
+  },
   plugins: [
-    new Dotenv({ path: "./system/.env" }),
     new MiniCssExtractPlugin({
       filename: "css/[name].css",
     }),
@@ -69,40 +65,45 @@ module.exports = {
           to: path.resolve("dist/assets"),
         },
         {
-          from: path.resolve("manifest.json"),
-          to: path.resolve("dist"),
-        },
-        {
           from: path.resolve("src/_locales"),
           to: path.resolve("dist/_locales"),
         },
+        {
+          from: path.resolve("manifest.json"),
+          to: path.resolve("dist"),
+        },
       ],
     }),
-    ...getHTMLPlugins(
-      Files.filter((files) => files.path.slice(-3) === "tsx").map(
+    ...getHtmlPlugins(
+      Files.filter((file) => file.path.slice(-3) === "tsx").map(
         (file) => file.name
       )
     ),
   ],
+  output: {
+    filename: "js/[name].bundle.js",
+    path: path.resolve("dist"),
+  },
   optimization: {
     minimize: false,
     minimizer: [new CssMinimizerPlugin()],
     splitChunks: {
       chunks(chunk) {
         return Files.find(
-          (file) => file.name === chunk.name && file.path.slice(-3) === "tsx"
+          (file) => file.name === chunk.name && file.path.slice(-3) === ".tsx"
         );
       },
     },
   },
 };
 
-function getHTMLPlugins(chunks) {
-  return chunks.map((chunk) => {
-    return new HtmlPlugin({
-      title: chunk,
-      filename: `${chunk}.html`,
-      chunks: [chunk],
-    });
-  });
+function getHtmlPlugins(chunks) {
+  return chunks.map(
+    (chunk) =>
+      new HtmlPlugin({
+        title: chunk,
+        filename: `${chunk}.html`,
+        chunks: [chunk],
+      })
+  );
 }

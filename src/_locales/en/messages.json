@@ -1,10 +1,92 @@
 {
+  "extName": {
+    "description": "",
+    "message": "Deprem.wiki: Real-time Earthquake Alerts"
+  },
+  "extDesc": {
+    "description": "",
+    "message": "Easily track earthquakes in Turkey with real-time alerts on Chrome browser! Simplifying instant earthquake monitoring."
+  },
+  "earthquakes": {
+    "description": "",
+    "message": "Earthquakes"
+  },
+  "settings": {
+    "description": "",
+    "message": "Settings"
+  },
+  "date": {
+    "description": "",
+    "message": "Date"
+  },
+  "size": {
+    "description": "",
+    "message": "Magnitude"
+  },
+  "notification": {
+    "description": "",
+    "message": "Notification"
+  },
+  "do_not_notification": {
+    "description": "Notification value.",
+    "message": "Do Not Disturb"
+  },
   "all": {
-    "description": "All",
+    "description": "Notification value.",
     "message": "All"
   },
-  "do_not_notify": {
-    "description": "Do not notify",
-    "message": "Do not notify"
+  "day": {
+    "description": "Notification value.",
+    "message": "$day$ Day",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "1",
+        "description": ""
+      }
+    }
+  },
+  "week": {
+    "description": "Notification value.",
+    "message": "$week$ Week",
+    "placeholders": {
+      "week": {
+        "content": "$1",
+        "example": "1",
+        "description": ""
+      }
+    }
+  },
+  "TSI": {
+    "description": "Notification value.",
+    "message": "Turkish Standard Time"
+  },
+  "list_is_empty": {
+    "description": "",
+    "message": "The list is empty."
+  },
+  "future_not_active": {
+    "description": "",
+    "message": "This feature is currently not active."
+  },
+  "notification_title": {
+    "description": "",
+    "message": "A new earthquake has occurred!"
+  },
+  "notification_body": {
+    "description": "",
+    "message": "Magnitude: $magnitude$ - Location: $location$",
+    "placeholders": {
+      "magnitude": {
+        "content": "$1",
+        "example": "5.6",
+        "description": ""
+      },
+      "location": {
+        "content": "$2",
+        "example": "Hatay",
+        "description": ""
+      }
+    }
   }
 }
