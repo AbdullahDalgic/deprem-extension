@@ -1,8 +1,8 @@
 {
-  "name": "deprem-extension",
-  "description": "Deprem Extension",
-  "version": "1.0",
+  "name": "__MSG_extName__",
+  "description": "__MSG_extDesc__",
   "default_locale": "tr",
+  "version": "1.0.1",
   "manifest_version": 3,
   "icons": {
     "16": "assets/icon.png",
@@ -11,8 +11,8 @@
   },
   "action": {
     "default_popup": "Popup.html",
-    "default_icon": "assets/icon.png",
-    "default_title": "Deprem Extension"
+    "default_title": "__MSG_extName__",
+    "default_icon": "assets/icon.png"
   },
   "background": {
     "service_worker": "js/Background.bundle.js"
