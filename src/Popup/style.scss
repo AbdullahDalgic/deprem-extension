@@ -19,15 +19,36 @@ body {
     .container {
       padding: 5px;
 
+
       .list {
         display: flex;
         flex-direction: column;
-        padding: 0;
+        padding: 0px;
 
 
         .list-item {
           background-color: #fff;
           border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+          display: flex;
+          flex-direction: row;
+          width: auto;
+          padding: 0 10px;
+
+
+
+          >:nth-child(1) {
+            width: 60px;
+          }
+
+          >:nth-child(2) {
+            width: auto;
+          }
+
+          >:nth-child(3) {
+            width: 60px;
+          }
+
+
 
           &.unseen {
             /*background-color: #afe8a1;*/
