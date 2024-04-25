@@ -17,7 +17,7 @@ import { dateConvert, i18n } from "@src/tools/helpers";
 
 const Items = memo(
   ({ data }: { data: IEarthquake }) => {
-    console.log("🚀 ~ item:", data);
+    // console.log("🚀 ~ item:", data);
 
     return (
       <ListItem className={`list-item ${!data.seen ? "unseen" : ""}`}>
@@ -34,7 +34,7 @@ const Items = memo(
             {data.magnitude}
           </Avatar>
         </ListItemAvatar>
-        <Box style={{ width: '100%' }}>
+        <Box style={{ width: "100%" }}>
           <Typography
             variant="subtitle1"
             gutterBottom
@@ -102,7 +102,7 @@ const Items = memo(
 
         <ListItemAvatar
           sx={{ textAlign: "-webkit-right", cursor: "pointer" }}
-          onClick={() => { }}
+          onClick={() => {}}
           title={i18n("future_not_active")}
         >
           <Avatar sx={{ borderRadius: "20%", bgcolor: grey[200] }}>

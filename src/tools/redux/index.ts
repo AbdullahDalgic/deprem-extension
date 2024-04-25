@@ -4,13 +4,15 @@ import {
   setupReduxed,
 } from "reduxed-chrome-storage";
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
+import { useDispatch, useSelector, TypedUseSelectorHook } from "react-redux";
 import earthquakes from "./slices/earthquakes";
 import settings from "./slices/settings";
-import { useDispatch, useSelector, TypedUseSelectorHook } from "react-redux";
+import device from "./slices/device";
 
 const rootReducer = combineReducers({
   earthquakes,
   settings,
+  device,
 });
 
 const store = configureStore({
@@ -40,5 +42,6 @@ export type AppDispatch = typeof store.dispatch;
 
 export const useTypedDispatch = () => useDispatch<AppDispatch>();
 export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
+export type useGetState = () => RootState;
 
 export default reduxStorage;

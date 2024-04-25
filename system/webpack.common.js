@@ -19,7 +19,6 @@ const Files = [
 module.exports = {
   mode: process.env.NODE_ENV,
   devtool: "cheap-module-source-map",
-  plugins: [new Dotenv({ path: "./system/.env" })],
   entry: Files.reduce((acc, file) => {
     acc[file.name] = file.path;
     return acc;
@@ -55,6 +54,7 @@ module.exports = {
     },
   },
   plugins: [
+    new Dotenv({ path: "./system/.env" }),
     new MiniCssExtractPlugin({
       filename: "css/[name].css",
     }),

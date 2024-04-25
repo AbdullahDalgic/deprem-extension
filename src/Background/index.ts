@@ -1,6 +1,6 @@
 import { ExtendedStore, diffDeep } from "reduxed-chrome-storage";
 import reduxStorage, { RootState } from "@src/tools/redux";
-import { APP_URL, SOCKET_URL } from "@src/tools/constants";
+import { API_URL, APP_URL, FCM_SENDER_ID } from "@src/tools/constants";
 import {
   IEarthquake,
   setEarthquakeSeen,
@@ -8,20 +8,16 @@ import {
   setEarthquake,
 } from "@src/tools/redux/slices/earthquakes";
 import { i18n } from "@src/tools/helpers";
-
-const io = require("socket.io-client");
+import { sendToken } from "@src/tools/redux/slices/device";
 
 class BackgroundJS {
   protected store: ExtendedStore;
   protected previous: RootState;
   protected storage: RootState;
-  protected socket;
 
   constructor() {
     console.log("BackgroundJS class is instantiated");
     this.Listeners();
-
-    this.SocketService();
   }
 
   protected Listeners = async () => {
@@ -45,38 +41,26 @@ class BackgroundJS {
     chrome.runtime.onStartup.addListener(() => {
       console.log("Extension started");
       this.store.dispatch(getEarthquakes());
-      this.SocketService();
     });
+
+    this.FirebaseListener();
   };
 
-  public SocketService = () => {
-    if (this.socket?.connected) return;
-
-    this.socket = io(SOCKET_URL, {
-      transports: ["websocket"],
+  protected FirebaseListener = () => {
+    chrome.gcm.register([FCM_SENDER_ID], (token) => {
+      this.store.dispatch(sendToken(token));
+      chrome.runtime.setUninstallURL(`${API_URL}/unregister/${token}`);
     });
 
-    this.socket.on("connect", () => {
-      console.log("Socket connected");
-      this.store.dispatch(getEarthquakes());
-    });
+    chrome.gcm.onMessage.addListener((message) => {
+      const { data } = message as any;
+      const deprem = JSON.parse(data.deprem);
 
-    this.socket.on("disconnect", () => {
-      console.log("Socket disconnected");
-    });
-
-    this.socket.on("ping", (data: any) => {
-      console.log("Socket ping");
-    });
-
-    this.socket.on("yeni-deprem", (data: any) => {
-      console.log("Socket message", data);
-
-      if (!this.IsItVisible(data)) {
-        this.store.dispatch(setEarthquakeSeen(data));
+      if (!this.IsItVisible(deprem)) {
+        this.store.dispatch(setEarthquakeSeen(deprem));
       } else {
-        this.store.dispatch(setEarthquake(data));
-        this.SendNotification(data);
+        this.store.dispatch(setEarthquake(deprem));
+        this.SendNotification(deprem);
       }
     });
   };

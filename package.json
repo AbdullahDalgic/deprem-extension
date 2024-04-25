@@ -23,8 +23,7 @@
     "react-redux": "^9.1.0",
     "redux": "^5.0.1",
     "reduxed-chrome-storage": "^3.0.10",
-    "sass": "^1.55.0",
-    "socket.io-client": "^2.5.0"
+    "sass": "^1.55.0"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.237",

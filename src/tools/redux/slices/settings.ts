@@ -1,4 +1,4 @@
-import { Dispatch, createSlice } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { i18n } from "@src/tools/helpers";
 
@@ -66,5 +66,3 @@ const slice = createSlice({
 export const { settingsUpdate } = slice.actions;
 
 export default slice.reducer;
-
-export const getEarthquakes = () => async (dispatch: Dispatch) => {};

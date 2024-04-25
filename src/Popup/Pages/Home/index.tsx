@@ -1,27 +1,20 @@
-import { useEffect, useMemo } from "react";
+import { memo, useEffect, useMemo } from "react";
 import { Box, List, Typography } from "@mui/material";
-import {
-  IEarthquake,
-  getEarthquakes,
-} from "@src/tools/redux/slices/earthquakes";
+import { IEarthquake } from "@src/tools/redux/slices/earthquakes";
 import { useTypedSelector, useTypedDispatch } from "@src/tools/redux";
 import { resetUnseen } from "@src/tools/redux/slices/earthquakes";
 import moment from "moment";
 import Item from "./Item";
 import { i18n } from "@src/tools/helpers";
 
-export default (function () {
+export default memo(function () {
   const dispatch = useTypedDispatch();
   const earthquakes = useTypedSelector((state) => state.earthquakes);
   const { magnitude, date } = useTypedSelector((state) => state.settings);
 
   useEffect(() => {
-    window.addEventListener("visibilitychange", function (event) {
-      dispatch(resetUnseen());
-      if (!earthquakes.data.length) {
-        dispatch(getEarthquakes());
-      }
-    });
+    // console.log("🚀 ~ useEffect");
+    dispatch(resetUnseen());
   }, []);
 
   const shortList = useMemo((): IEarthquake[] => {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useLayoutEffect } from "react";
 
 import SettingsIcon from "@mui/icons-material/Settings";
 import WaterIcon from "@mui/icons-material/Water";
@@ -13,6 +13,8 @@ import { getSystemLanguage, i18n } from "@src/tools/helpers";
 
 import Home from "./Pages/Home";
 import Settings from "./Pages/Settings";
+import { useTypedDispatch } from "@src/tools/redux";
+import { getEarthquakes } from "@src/tools/redux/slices/earthquakes";
 
 const Pages = {
   Home: <Home />,
@@ -22,12 +24,18 @@ const Pages = {
 const lang = getSystemLanguage();
 moment.locale(lang);
 
-export default function Navigation() {
+export default memo(function Navigation() {
+  const dispatch = useTypedDispatch();
   const [value, setValue] = React.useState(Object.keys(Pages)[0]);
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
+
+  useLayoutEffect(() => {
+    // console.log("🚀 ~ useLayoutEffect");
+    dispatch(getEarthquakes());
+  }, []);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -55,4 +63,4 @@ export default function Navigation() {
       </Paper>
     </Box>
   );
-}
+});
