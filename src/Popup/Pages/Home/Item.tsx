@@ -14,6 +14,7 @@ import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import moment from "moment";
 import { IEarthquake } from "@src/tools/redux/slices/earthquakes";
 import { dateConvert, i18n } from "@src/tools/helpers";
+import { APP_URL } from "@src/tools/constants";
 
 const Items = memo(
   ({ data }: { data: IEarthquake }) => {
@@ -102,7 +103,10 @@ const Items = memo(
 
         <ListItemAvatar
           sx={{ textAlign: "-webkit-right", cursor: "pointer" }}
-          onClick={() => {}}
+          onClick={() => {
+            const link = `${APP_URL}/deprem/${data.eventId}`;
+            chrome.tabs.create({ url: link });
+          }}
           title={i18n("future_not_active")}
         >
           <Avatar sx={{ borderRadius: "20%", bgcolor: grey[200] }}>
