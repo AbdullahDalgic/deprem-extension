@@ -26,6 +26,10 @@ class BackgroundJS {
     this.Listeners();
   }
 
+  /**
+   * Listenerlar burada tanimlanir
+   */
+
   protected Listeners = async () => {
     this.store = await reduxStorage();
     this.storage = this.store.getState() as RootState;
@@ -38,28 +42,21 @@ class BackgroundJS {
       this.StorageListener(changed);
     });
 
-    chrome.notifications.onClicked.addListener((id) => {
-      console.log("Notification clicked", id);
-      let clickUrl = APP_URL;
-      const find = this.storage.earthquakes.data.find(
-        (e: IEarthquake) => e.eventId.toString() === id
-      );
-      if (find) {
-        clickUrl = `${APP_URL}/deprem/${find.eventId}`;
-      }
-      chrome.tabs.create({ url: clickUrl });
-      chrome.notifications.clear(id);
-    });
-
-    chrome.runtime.onStartup.addListener(() => {
-      console.log("Extension started");
-      this.store.dispatch(getEarthquakes());
-    });
-
+    chrome.notifications.onClicked.addListener(this.NotificationClicked);
+    chrome.runtime.onStartup.addListener(this.StartupListener);
     chrome.alarms.create("alarm", { periodInMinutes: 1 / 60 });
     chrome.alarms.onAlarm.addListener(this.AlarmListener);
 
     this.FirebaseListener();
+  };
+
+  /**
+   * Listenerlarin islevleri burada tanimlanir
+   */
+
+  protected StartupListener = () => {
+    // console.log("Extension started");
+    this.store.dispatch(getEarthquakes());
   };
 
   protected AlarmListener = (alarm: chrome.alarms.Alarm) => {
@@ -112,6 +109,19 @@ class BackgroundJS {
         text: unseen.toString(),
       });
     }
+  };
+
+  protected NotificationClicked = (id: string) => {
+    // console.log("Notification clicked", id);
+    let clickUrl = APP_URL;
+    const find = this.storage.earthquakes.data.find(
+      (e: IEarthquake) => e.eventId.toString() === id
+    );
+    if (find) {
+      clickUrl = `${APP_URL}/deprem/${find.eventId}`;
+    }
+    chrome.tabs.create({ url: clickUrl });
+    chrome.notifications.clear(id);
   };
 
   protected SendNotification = (data: IEarthquake) => {
