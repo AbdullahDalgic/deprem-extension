@@ -9,6 +9,7 @@ import {
 } from "@src/tools/redux/slices/earthquakes";
 import { i18n } from "@src/tools/helpers";
 import { sendToken } from "@src/tools/redux/slices/device";
+import { setLastWork } from "@src/tools/redux/slices/alarms";
 
 class BackgroundJS {
   protected store: ExtendedStore;
@@ -34,7 +35,14 @@ class BackgroundJS {
 
     chrome.notifications.onClicked.addListener((id) => {
       console.log("Notification clicked", id);
-      chrome.tabs.create({ url: APP_URL });
+      let clickUrl = APP_URL;
+      const find = this.storage.earthquakes.data.find(
+        (e: IEarthquake) => e.eventId.toString() === id
+      );
+      if (find) {
+        clickUrl = `${APP_URL}/deprem/${find.eventId}`;
+      }
+      chrome.tabs.create({ url: clickUrl });
       chrome.notifications.clear(id);
     });
 
@@ -43,7 +51,30 @@ class BackgroundJS {
       this.store.dispatch(getEarthquakes());
     });
 
+    chrome.alarms.create("alarm", { periodInMinutes: 1 / 60 });
+    chrome.alarms.onAlarm.addListener(this.AlarmListener);
+
     this.FirebaseListener();
+  };
+
+  protected AlarmListener = (alarm: chrome.alarms.Alarm) => {
+    if (alarm.name === "alarm") {
+      const now = new Date();
+      const { lastWork, apiCallTime } = this.storage.alarms;
+      if (!lastWork) return this.store.dispatch(setLastWork());
+
+      /**
+       * iki zaman arasindaki farki al
+       * eger fark belirlenen zamandan buyukse bir suredir veri cekilmiyor demektir
+       * ve veri cekme islemi baslatilir
+       */
+      const diff = now.getTime() - new Date(lastWork).getTime();
+      if (diff > apiCallTime) {
+        this.store.dispatch(getEarthquakes());
+      }
+
+      this.store.dispatch(setLastWork());
+    }
   };
 
   protected FirebaseListener = () => {
@@ -65,10 +96,10 @@ class BackgroundJS {
     });
   };
 
-  private StorageListener = async (changed: { [key: string]: any }) => {
+  protected StorageListener = async (changed: { [key: string]: any }) => {
     this.storage = this.store.getState() as RootState;
 
-    console.log("🚀 ~ changed:", changed);
+    // console.log("🚀 ~ changed:", changed);
     if (changed?.earthquakes?.unseen !== undefined) {
       let unseen = changed.earthquakes.unseen ?? 0;
       if (!unseen) unseen = "";
@@ -78,7 +109,7 @@ class BackgroundJS {
     }
   };
 
-  private SendNotification = (data: IEarthquake) => {
+  protected SendNotification = (data: IEarthquake) => {
     // when clicked, open the www.deprem.wiki
     chrome.notifications.create(data.eventId.toString(), {
       type: "basic",
@@ -92,7 +123,7 @@ class BackgroundJS {
     });
   };
 
-  private IsItVisible = (data: IEarthquake) => {
+  protected IsItVisible = (data: IEarthquake) => {
     let { magnitude, notification } = this.storage.settings;
     const NotificationValue = Number(notification.selected.value);
     const SizeValue = Number(magnitude.selected.value);
