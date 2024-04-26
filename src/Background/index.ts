@@ -17,7 +17,12 @@ class BackgroundJS {
   protected storage: RootState;
 
   constructor() {
-    console.log("BackgroundJS class is instantiated");
+    console.log("%cDeprem.wiki", "color:red;font-size:30px;");
+    console.log("%cAçık Kaynak Kodlu Deprem Eklentisi", "color:white;");
+    console.log(
+      "%cWeb sitemizi buradan ziyaret edebilirsiniz. https://deprem.wiki",
+      "color:white;font-size:10px;text-decoration:none;"
+    );
     this.Listeners();
   }
 
