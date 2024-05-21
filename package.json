@@ -5,7 +5,7 @@
   "scripts": {
     "start": "webpack --mode=development --watch --progress --config system/webpack.common.js",
     "build": "webpack --mode=production --watch --progress --config system/webpack.common.js",
-    "crx": "webpack --mode=production --progress --config system/webpack.common.js && crx3 pack ./dist --zip --overwrite"
+    "crx": "webpack --mode=production --progress --config system/webpack.common.js && crx3 pack ./dist --zip -p pemfile.pem --overwrite"
   },
   "author": "Abdullah Dalgıç",
   "dependencies": {
