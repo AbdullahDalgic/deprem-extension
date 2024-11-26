@@ -3,5 +3,5 @@ dist.zip
 yarn.lock
 node_modules
 
+/*.crx
 /*.zip
-/*.pem
