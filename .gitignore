@@ -4,5 +4,6 @@ yarn.lock
 node_modules
 .env
 
+/*.pem
 /*.crx
 /*.zip
