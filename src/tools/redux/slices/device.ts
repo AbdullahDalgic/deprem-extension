@@ -13,12 +13,14 @@ interface IDeviceProps {
   country?: string;
   city?: string;
   timezone?: string;
+  fcm_token_old?: string;
 }
 
 export interface IDevice {
   fcm_token: string;
   fcm_token_sent: boolean;
   fcm_id?: number;
+  fcm_token_old?: string;
 }
 
 const initialState: IDevice = {
@@ -31,6 +33,7 @@ const slice = createSlice({
   initialState: initialState,
   reducers: {
     setToken: (state, action: PayloadAction<string>) => {
+      state.fcm_token_old = state?.fcm_token;
       state.fcm_token = action.payload;
       state.fcm_token_sent = false;
     },
@@ -56,6 +59,9 @@ export const sendToken =
       device_os: "chrome",
       device_os_version: navigator.appVersion,
     };
+    if (getState()?.device?.fcm_token_old) {
+      device.fcm_token_old = getState()?.device?.fcm_token_old;
+    }
 
     try {
       const info = await (await fetch("https://ipapi.co/json/")).json();
