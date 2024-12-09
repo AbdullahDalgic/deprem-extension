@@ -37,7 +37,6 @@ const initialState: ISettings = {
     selected: { name: "2.5+", value: 2.5 },
     options: [
       { name: i18n("all"), value: "all" },
-      { name: "1+", value: 1 },
       { name: "2.5+", value: 2.5 },
       { name: "4+", value: 4 },
     ],
