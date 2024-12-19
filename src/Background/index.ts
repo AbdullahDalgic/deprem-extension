@@ -87,7 +87,7 @@ class BackgroundJS {
     onBackgroundMessage(messaging, (message) => {
       const { data } = message as any;
       if (data?.deprem) {
-        const deprem = JSON.parse(data?.deprem);
+        const deprem: IEarthquake = JSON.parse(data?.deprem);
         if (!this.IsItVisible(deprem)) {
           this.store.dispatch(setEarthquakeSeen(deprem));
         } else {
@@ -126,6 +126,7 @@ class BackgroundJS {
 
   protected SendNotification = (data: IEarthquake) => {
     // when clicked, open the www.deprem.wiki
+    const priority = parseInt(data.magnitude.toString());
     chrome.notifications.create(data.eventId.toString(), {
       type: "basic",
       iconUrl: chrome.runtime.getURL("assets/icon.png"),
@@ -134,6 +135,7 @@ class BackgroundJS {
         data.magnitude.toString(),
         data.location,
       ]),
+      priority: priority > 3 ? priority : 3,
       isClickable: true,
     });
   };
@@ -144,7 +146,7 @@ class BackgroundJS {
     const SizeValue = Number(magnitude.selected.value);
     const Magnitude = Number(data.magnitude);
 
-    console.log("🚀 ~", { NotificationValue, SizeValue, Magnitude });
+    // console.log("🚀 ~", { NotificationValue, SizeValue, Magnitude });
 
     if (!notification.selected.value) return false;
     if (!!NotificationValue && Magnitude < NotificationValue) return false;
