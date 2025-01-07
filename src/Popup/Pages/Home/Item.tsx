@@ -107,7 +107,7 @@ const Items = memo(
             const link = `${APP_URL}/deprem/${data.eventId}`;
             chrome.tabs.create({ url: link });
           }}
-          title={i18n("future_not_active")}
+          title={i18n("go_to_detail")}
         >
           <Avatar sx={{ borderRadius: "20%", bgcolor: grey[200] }}>
             <ArrowForwardIosIcon sx={{ color: grey[900] }} />

@@ -69,6 +69,10 @@
     "description": "",
     "message": "This feature is currently not active."
   },
+  "go_to_detail": {
+    "description": "",
+    "message": "Look at the details."
+  },
   "notification_title": {
     "description": "",
     "message": "A new earthquake has occurred!"

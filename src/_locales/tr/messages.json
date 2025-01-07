@@ -73,6 +73,10 @@
     "description": "",
     "message": "Bu özellik şu an aktif değil."
   },
+  "go_to_detail": {
+    "description": "",
+    "message": "Detaylara bak."
+  },
   "notification_title": {
     "description": "",
     "message": "Yeni bir deprem meydana geldi!"
