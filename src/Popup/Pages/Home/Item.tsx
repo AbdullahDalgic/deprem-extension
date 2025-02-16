@@ -105,7 +105,10 @@ const Items = memo(
           sx={{ textAlign: "-webkit-right", cursor: "pointer" }}
           onClick={() => {
             const link = `${APP_URL}/deprem/${data.eventId}`;
-            chrome.tabs.create({ url: link });
+            const redirectLink = chrome.runtime.getURL(
+              `Redirect.html?redirect=${link}`
+            );
+            chrome.tabs.create({ url: redirectLink });
           }}
           title={i18n("go_to_detail")}
         >

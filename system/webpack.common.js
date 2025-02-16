@@ -11,6 +11,10 @@ const Files = [
     path: path.resolve("src/Popup/index.tsx"),
   },
   {
+    name: "Redirect",
+    path: path.resolve("src/Redirect/index.tsx"),
+  },
+  {
     name: "Background",
     path: path.resolve("src/Background/index.ts"),
   },

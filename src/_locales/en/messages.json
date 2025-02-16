@@ -92,5 +92,11 @@
         "description": ""
       }
     }
+  },
+  "redirect_title": {
+    "message": "You are being redirected.."
+  },
+  "redirect_message": {
+    "message": "Please wait. Details of the earthquake you clicked on are loading.."
   }
 }
