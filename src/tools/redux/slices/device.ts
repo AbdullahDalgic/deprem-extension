@@ -2,10 +2,12 @@ import { Dispatch, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { useGetState } from "..";
 import { API_URL } from "@src/tools/constants";
+import { getPlatform } from "@src/tools/helpers";
 
 interface IDeviceProps {
   fcm_token: string;
   app_version?: string;
+  device_type?: string;
   device_model?: string;
   device_os?: string;
   device_os_version?: string;
@@ -55,8 +57,9 @@ export const sendToken =
     const device: IDeviceProps = {
       fcm_token,
       app_version: manifest.version,
-      device_model: navigator.userAgent,
-      device_os: "chrome",
+      device_type: "extension",
+      device_model: getPlatform(),
+      device_os: (await chrome.runtime.getPlatformInfo()).os,
       device_os_version: navigator.appVersion,
     };
     if (getState()?.device?.fcm_token_old) {
