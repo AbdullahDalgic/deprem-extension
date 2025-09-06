@@ -22,3 +22,18 @@ export const dateConvert = (_date: string, _timezone: string) => {
 
   return convertedDate;
 };
+
+export const getPlatform = () => {
+  const { userAgent } = navigator;
+
+  if (userAgent.includes("Firefox")) {
+    return "Firefox";
+  } else if ("brave" in navigator) {
+    return "Brave";
+  } else if (userAgent.includes("Edg/")) {
+    return "Edge";
+  } else if (userAgent.includes("OPR")) {
+    return "Opera";
+  }
+  return "Chrome";
+};

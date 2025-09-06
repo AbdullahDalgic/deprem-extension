@@ -105,9 +105,12 @@ const Items = memo(
           sx={{ textAlign: "-webkit-right", cursor: "pointer" }}
           onClick={() => {
             const link = `${APP_URL}/deprem/${data.eventId}`;
-            chrome.tabs.create({ url: link });
+            const redirectLink = chrome.runtime.getURL(
+              `Redirect.html?redirect=${link}`
+            );
+            chrome.tabs.create({ url: redirectLink });
           }}
-          title={i18n("future_not_active")}
+          title={i18n("go_to_detail")}
         >
           <Avatar sx={{ borderRadius: "20%", bgcolor: grey[200] }}>
             <ArrowForwardIosIcon sx={{ color: grey[900] }} />

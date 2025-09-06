@@ -73,6 +73,10 @@
     "description": "",
     "message": "Bu özellik şu an aktif değil."
   },
+  "go_to_detail": {
+    "description": "",
+    "message": "Detaylara bak."
+  },
   "notification_title": {
     "description": "",
     "message": "Yeni bir deprem meydana geldi!"
@@ -92,5 +96,11 @@
         "description": ""
       }
     }
+  },
+  "redirect_title": {
+    "message": "Yönlendiriliyorsunuz.."
+  },
+  "redirect_message": {
+    "message": "Lütfen bekleyiniz. Tıklamış olduğunuz depremin detayları yükleniyor.."
   }
 }

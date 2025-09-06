@@ -1,6 +1,6 @@
 import { ExtendedStore, diffDeep } from "reduxed-chrome-storage";
 import reduxStorage, { RootState } from "@src/tools/redux";
-import { API_URL, APP_URL, FCM_SENDER_ID } from "@src/tools/constants";
+import { APP_URL } from "@src/tools/constants";
 import {
   IEarthquake,
   setEarthquakeSeen,
@@ -8,8 +8,11 @@ import {
   setEarthquake,
 } from "@src/tools/redux/slices/earthquakes";
 import { i18n } from "@src/tools/helpers";
-import { sendToken } from "@src/tools/redux/slices/device";
+// import { sendToken } from "@src/tools/redux/slices/device";
 import { setLastWork } from "@src/tools/redux/slices/alarms";
+import { firebaseTokenRegister } from "@src/tools/firebase/register";
+import { onBackgroundMessage } from "firebase/messaging/sw";
+import { messaging } from "@src/tools/firebase/config";
 
 class BackgroundJS {
   protected store: ExtendedStore;
@@ -47,6 +50,7 @@ class BackgroundJS {
     chrome.alarms.create("alarm", { periodInMinutes: 1 / 60 });
     chrome.alarms.onAlarm.addListener(this.AlarmListener);
 
+    firebaseTokenRegister();
     this.FirebaseListener();
   };
 
@@ -80,20 +84,16 @@ class BackgroundJS {
   };
 
   protected FirebaseListener = () => {
-    chrome.gcm.register([FCM_SENDER_ID], (token) => {
-      this.store.dispatch(sendToken(token));
-      chrome.runtime.setUninstallURL(`${API_URL}/unregister/${token}`);
-    });
-
-    chrome.gcm.onMessage.addListener((message) => {
+    onBackgroundMessage(messaging, (message) => {
       const { data } = message as any;
-      const deprem = JSON.parse(data.deprem);
-
-      if (!this.IsItVisible(deprem)) {
-        this.store.dispatch(setEarthquakeSeen(deprem));
-      } else {
-        this.store.dispatch(setEarthquake(deprem));
-        this.SendNotification(deprem);
+      if (data?.deprem) {
+        const deprem: IEarthquake = JSON.parse(data?.deprem);
+        if (!this.IsItVisible(deprem)) {
+          this.store.dispatch(setEarthquakeSeen(deprem));
+        } else {
+          this.store.dispatch(setEarthquake(deprem));
+          this.SendNotification(deprem);
+        }
       }
     });
   };
@@ -126,6 +126,7 @@ class BackgroundJS {
 
   protected SendNotification = (data: IEarthquake) => {
     // when clicked, open the www.deprem.wiki
+    const priority = parseInt(data.magnitude.toString());
     chrome.notifications.create(data.eventId.toString(), {
       type: "basic",
       iconUrl: chrome.runtime.getURL("assets/icon.png"),
@@ -134,6 +135,7 @@ class BackgroundJS {
         data.magnitude.toString(),
         data.location,
       ]),
+      priority: priority > 3 ? priority : 3,
       isClickable: true,
     });
   };
@@ -144,7 +146,7 @@ class BackgroundJS {
     const SizeValue = Number(magnitude.selected.value);
     const Magnitude = Number(data.magnitude);
 
-    console.log("🚀 ~", { NotificationValue, SizeValue, Magnitude });
+    // console.log("🚀 ~", { NotificationValue, SizeValue, Magnitude });
 
     if (!notification.selected.value) return false;
     if (!!NotificationValue && Magnitude < NotificationValue) return false;

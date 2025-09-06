@@ -69,6 +69,10 @@
     "description": "",
     "message": "This feature is currently not active."
   },
+  "go_to_detail": {
+    "description": "",
+    "message": "Look at the details."
+  },
   "notification_title": {
     "description": "",
     "message": "A new earthquake has occurred!"
@@ -88,5 +92,11 @@
         "description": ""
       }
     }
+  },
+  "redirect_title": {
+    "message": "You are being redirected.."
+  },
+  "redirect_message": {
+    "message": "Please wait. Details of the earthquake you clicked on are loading.."
   }
 }
